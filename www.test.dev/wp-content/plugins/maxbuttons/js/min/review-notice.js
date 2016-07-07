@@ -1,0 +1,1 @@
+jQuery(document).ready(function(t){function a(a){a.preventDefault;var e=t(a.target).data("action");n(e)}function n(a){var n=mb_ajax_review.ajaxurl,c={action:"set_review_notice_status",status:a};t.ajax({method:"POST",url:n,data:c,success:function(){e()}})}function e(){t(".maxbuttons-notice").fadeOut()}t(".maxbuttons-notice [data-action]").on("click",a)});
