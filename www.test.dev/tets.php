@@ -41,7 +41,7 @@ else{
     <script src="js/decomp.js" type="text/javascript"></script>
     <script src="matterJS/build/matter.js" type="text/javascript"></script>
     <script src="matterJS/build/Examples.js" type="text/javascript"></script>
-    <script src="js/phaser.min.js" type="text/javascript"></script>
+    <!--<script src="js/phaser.min.js" type="text/javascript"></script>-->
     <script src="js/matterTest.js" type="text/javascript"></script>
     <!--<script src="js/p2.js"></script>
     <script src="js/p2.renderer.js"></script>-->
@@ -80,55 +80,136 @@ else{
     }
     #myCanvas{
     }
+    #selected{
+        float: right;
+        display: inline-block;
+        position: absolute;
+        margin-top: 0px;
+    }
+
+    #overlay, #overlay2, #overlay3 {
+         visibility: hidden;
+         position: absolute;
+         left: 0px;
+         top: 0px;
+         width:100%;
+         height:100%;
+         text-align:center;
+         z-index: 1000;
+    }
+    #overlay div, #overlay2 div, #overlay3 div {
+         width:300px;
+         margin: 100px auto;
+         background-color: #fff;
+         border:1px solid #000;
+         padding:15px;
+         text-align:center;
+    }
     </style>
   </head>
   <body>
-    <canvas width="1200" height="800" id="myCanvas"></canvas>
-    <input type="range" id="myRange" value="40" min="0" max="100" oninput="changeSpeed(this.value)">
-    <input type="range" id="myRange" value="40" min="10" max="500" onchange="changeScale(this.value)">
-  	<!-- <div id = "content">
-	    <button id = "openClose" onClick = "openClosePage()">Opening and Closing</button>
-	    <button id = "flapping"  onClick = "flappingPage()">Flapping</button>
-	    
-	    <p id = "sliderA" class = "values">Slider A Value: </p>
-	    <br>
-	    <p id = "sliderB" class = "values">Slider B Value: </p>
-	    <br>
-	    <p id = "sliderC" class = "values">Slider C Value: </p>
-	    <br>
-	    <p id = "sliderD" class = "values">Slider D Value: </p>
-	    <br>
-	    <p id = "sliderE" class = "values">Slider E Value: </p>
-	    <br>
-	    <p id = "sliderF" class = "values">Slider F Value: </p>
-	    <br>
-	    <input type="range" id="myRange" value="150" min="1" max="400" onchange="sliderDUpdate()" oninput="myFunction(this.value)">
-
-		<p>Click the button to get the value of the slider control.</p>
-
-		<button onclick="test()">Try it</button>
-
-		<p><strong>Note:</strong> input elements with type="range" are not supported in IE 9 and earlier versions.</p>
-
-		<p id="demo"></p>
-	</div> -->
-
-	<script>
-	function myFunction(val) {
-	    //var slider_A_Value = document.getElementById("myRange").value;
-	    document.getElementById("demo").innerHTML = val;
-	}
-	// function sliderAUpdate(sliderAValue){
-	// 	Bird1.setA(sliderAValue);
-	// 	stdSliderValue.wings.A = sliderAValue;
-	// }
-	// function sliderCUpdate(sliderCValue){
-	// 	Bird1.setC(sliderCValue);
-	// 	stdSliderValue.wings.C = sliderCValue;
-	// }
-	</script>
-    <script src="js/p2Test.js"></script>
+    <br>
+    <label>Motor Speed: </label>
+    <input type="range" id="changeSpeed" value="40" min="0" max="100" oninput="changeSpeed(this.value)">
+    <br>
+    <label>Number of Teeth: </label>
+    <input type="range" id="changeNumOfTeeth" value="40" min="10" max="55" oninput="changeNumOfTeeth(this.value)">
+    <br>
+    <label>Tooth Height: </label>
+    <input type="range" id="changeToothHeight" value="25" min="0" max="30" oninput="changeToothHeight(this.value)">
+    <br>
+    <label>Tooth Width: </label>
+    <input type="range" id="changeToothWidth" value="300" min="0" max="800" oninput="changeToothWidth(this.value)">
+    <br>
+    <label>Gear Radius: </label>
+    <input type="range" id="changeRadius" value="75" min="20" max="100" oninput="changeRadius(this.value)">
+    <br>
+    <label>Time Interval: </label>
+    <input type="range" id="changeTimeInterval" value="3" min="1" max="30" oninput="changeTimeInterval(this.value)">
+    <br>
+    <label>Rotate Object: </label>
+    <input type="range" id="changeRotation" value="0" min="0" max="360" oninput="rotateObject(this.value)">
+    <br>
+    <br>
+    <button type="button" id="selection" onclick="selectingMode()">Selection Mode</button> 
+    <br>
+    <button type="button" id="drag" onclick="draggingMode()">Drag Mode</button> 
+    <br>
+    <button type="button" id="constrain" onclick="constrainingMode()">Constraint Mode</button> 
+    <br>
+    <button type="button" id="deleteConstraint" onclick="constrainingDeleteMode()">Remove Constraint</button> 
+    <br>
+    <!--<button type="button" id="motorSet" onclick="motorSet()">Set Motor</button> 
+    <br>-->
+    <button type="button" id="addMotor" onclick="addMotor()">Add Motor</button>
+    <br>
+    <button type="button" id="removeMotor" onclick="removeMotor()">Remove Motor</button>
+    <br>
+    <button type="button" id="reverseMotor" onclick="reverseMotor()">Reverse Motor</button>
+    <br>
+    <button type="button" id="createGear" onclick="addGearComposite()">Add Gear</button>
+    <br>
+    <button type="button" id="createGear" onclick="addRectComposite()">Add Beam</button>
+    <br> 
+    <button type="button" id="deleteGear" onclick="removeComposite()">Remove Gear</button> 
+    <br>
+    <button type="button" id="modal" onclick="overlay()">Add Rectangle</button>
+    <br>
+    <button type="button" id="editConstraints" onclick="overlay3()">Edit Constraints</button>
+    <div id="overlay">
+         <div>
+            <label>Width:</label>
+            <br>
+            <input id= "widthInput" class="w3-input" type="text">
+            <br>
+            <br>
+            <label>Height:</label>
+            <br>
+            <input id = "heightInput" class="w3-input" type="text">
+            <br>
+            <br>
+            <button type="button" id="cancel" onclick="overlay()">Cancel</button> 
+            <button type="button" id="createRect" onclick="createRect()">Create</button>
+         </div>
+    </div>
+    <div id="overlay2">
+         <div>
+            <!--<label>Offset Object 1</label>
+            <br>
+            <input id= "offset1" class="w3-input" type="text">
+            <br>
+            <br>
+            <label>Offset Object 2</label>
+            <br>
+            <input id = "offset2" class="w3-input" type="text">
+            <br>
+            <br>-->
+            <label>Length</label>
+            <br>
+            <input id = "length" class="w3-input" type="text">
+            <br>
+            <br>
+            <button type="button" id="cancel" onclick="overlay2()">Cancel</button> 
+            <button type="button" id="createRect" onclick="createConstraint()">Create</button>
+         </div>
+    </div>
+    <div id="overlay3">
+         <div>
+            <h2>Attached Constraints</h2>
+            <br>
+            <br>
+            <label>Constraint 1: </label>
+            <label id = "constraint1"></label>
+            <br>
+            <input type="checkbox" id="constraint1Check" value ="">Constraint 1<br>
+            <br>
+            <br>
+            <br>
+            <button type="button" id="cancel" onclick="overlay3()">Cancel</button> 
+            <button type="button" id="createRect" onclick="deleteConstraint()">Remove</button>
+         </div>
+    </div>
+    <script type="text/javascript">
+    </script>
   </body>
-  <script type="text/javascript">
-  </script>
 </html>
