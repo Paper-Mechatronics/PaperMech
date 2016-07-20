@@ -43,13 +43,17 @@ var selectionMode = false;
 var dragMode = true;
 var constraintMode = false;
 var constraintDeleteMode = false;
+var multiSelectionMode = false;
 var selected;
 var previousSelection;
 var motor;
 var constraintStart;
 var constraintDestination;
 var testConstraint;
+var addConstraint = false;
+var removeConstraint = false;
 var timeInterval = 3;
+var selectionArray = [];
 
 var xValues = [];
 var yValues = [];
@@ -79,7 +83,7 @@ function overlay2() {
 function overlay3() {
     el3 = document.getElementById("overlay3");
     el3.style.visibility = (el3.style.visibility == "visible") ? "hidden" : "visible";
-    displayConstraints();
+    //displayConstraints();
 }
 ////////////////////// GEAR GENERATION ///////////////////////////////
 function drawGear(){
@@ -107,7 +111,7 @@ var jointComposites = [];
 var totalJointComposites = 0;
 
 function addGearComposite(){
-  console.log(verts2.length)
+  //console.log(verts2.length)
   totalComposites++;
   totalConstraints++;
   compositeArray.push( 
@@ -118,7 +122,8 @@ function addGearComposite(){
         radius: radius,
         toothWidthDegree: toothWidthDegree,
         toothHeight: toothHeight,
-        numOfTeeth: steps
+        numOfTeeth: steps,
+        lock: false
       })
   )
   constraintArray.push(
@@ -140,7 +145,8 @@ function addRectComposite(width, height){
         constraints:[],
         shape: "rect",
         width: width,
-        height: height
+        height: height,
+        lock: true
 
       })
   )
@@ -157,10 +163,23 @@ function removeComposite(){
       if(motor == compositeArray[i].bodies[0]){
         motor = null;
       }
+      for(var i=0; i<jointComposites.length;i++){
+        if(jointComposites[i].constraints[0].bodyA == selected || jointComposites[i].constraints[0].bodyB == selected){
+          jointComposites[i].constraints[0].bodyA = null;
+          jointComposites[i].constraints[0].bodyB = null;
+          jointComposites[i].constraints[0].pointA = null;
+          jointComposites[i].constraints[0].pointB = null;
+        }
+      }
       Composite.clear(compositeArray[i], true);
+      compositeArray.splice(i,1);
     }
   }
+  for(var i=0; i<compositeArray.length;i++){
+    console.log(compositeArray[i]);
+  }
   //World.add(engine.world,[compositeArray[i]] );
+  totalComposites--;
 }
 function changeBody(){
   if(selected.label != "Rectangle Body"){
@@ -220,8 +239,20 @@ function constraintStiffness(){
 }
 function deleteConstraint(){
   for(var i=0; i<jointComposites.length;i++){
+    console.log(jointComposites[i].constraints[0].bodyA);
     if((jointComposites[i].constraints[0].bodyA == constraintStart && jointComposites[i].constraints[0].bodyB == constraintDestination) || (jointComposites[i].constraints[0].bodyA == constraintDestination && jointComposites[i].constraints[0].bodyB == constraintStart)){
-      Composite.clear(jointComposites[i], true);
+      jointComposites[i].constraints[0].bodyA = null;
+      jointComposites[i].constraints[0].bodyB = null;
+      jointComposites[i].constraints[0].pointA = null;
+      jointComposites[i].constraints[0].pointB = null;
+      for(var i = 0; i<compositeArray.length;i++){
+        if(constraintStart == compositeArray[i].bodies[0]){
+          compositeArray[i].hasConstraint = false;
+        }
+        if(constraintDestination == compositeArray[i].bodies[0]){
+          compositeArray[i].hasConstraint = false;
+        }
+      }
     }
   }
   //World.add(engine.world,[compositeArray[i]] );
@@ -270,6 +301,17 @@ function createConstraint(){
     }))
     totalJointComposites++;
     World.add(engine.world, jointComposites[totalJointComposites-1]);
+    for(var i = 0; i<compositeArray.length;i++){
+      if(constraintStart == compositeArray[i].bodies[0]){
+        compositeArray[i].hasConstraint = true;
+      }
+      if(constraintDestination == compositeArray[i].bodies[0]){
+        compositeArray[i].hasConstraint = true;
+      }
+    }
+    for(var i = 0; i<jointComposites.length;i++){
+      console.log(jointComposites[i].constraints[0].bodyA);
+    }
   }
 }
 
@@ -322,23 +364,51 @@ function changeRadius(value){
 //   Composite.scale(composite1,value/100,value/100,composite1.constraints[0].pointA);
 // }
 function selectingMode(){
+  removeFocus();
   selectionMode = true;
   dragMode = false;
   constraintMode = false;
+  addConstraint = false;
+  removeConstraint = false;
+  multiSelectionMode = false;
 }
 function draggingMode(){
+  removeFocus();
   dragMode = true;
   selectionMode = false;
   constraintMode = false;
+  addConstraint = false;
+  removeConstraint = false;
+  multiSelectionMode = false;
+
 }
 function constrainingMode(){
+  removeFocus();
   constraintMode = true;
+  addConstraint = true;
+  removeConstraint = false;
   selectionMode = false;
   dragMode = false;
+  multiSelectionMode = false;
 }
 function constrainingDeleteMode(){
-
-  constraintDeleteMode = !constraintDeleteMode;
+  removeFocus();
+  constraintMode = true;
+  removeConstraint = true;
+  addConstraint = false;
+  selectionMode = false;
+  dragMode = false;
+  multiSelectionMode = false;
+}
+function multiSelectingMode(){
+  removeFocus();
+  selectionArray = [];
+  multiSelectionMode = true;
+  selectionMode = false;
+  dragMode = false;
+  constraintMode = false;
+  addConstraint = false;
+  removeConstraint = false;
 }
 function removeFocus(){
   if (previousSelection){
@@ -350,7 +420,7 @@ function removeFocus(){
 }
 function select(body){
   selected = body;
-  console.log(body);
+  //console.log(body);
   selected.render.strokeStyle = "blue";
   for(var i=0; i<selected.parts.length;i++){
     selected.parts[i].render.strokeStyle = "blue";
@@ -360,6 +430,18 @@ function select(body){
     previousSelection = selected;
   }
   updateSliders(selected);
+}
+function multiSelect(body){
+  if(selected){
+    selectionArray.push(selected);
+  }
+  selectionArray.push(body);
+  for(var i = 0;i<selectionArray.length;i++){
+    selectionArray[i].render.strokeStyle = "blue";
+    for(var j=0; j<selected.parts.length;j++){
+      selectionArray[i].parts[j].render.strokeStyle = "blue";
+    }
+  }
 }
 function updateSliders(body){
   for(var i = 0; i<compositeArray.length;i++){
@@ -381,24 +463,69 @@ function updateSliders(body){
 //   }
 // }
 function addMotor(){
-  for(var i = 0; i<compositeArray.length;i++){
-    if(selected == compositeArray[i].bodies[0]){
-      compositeArray[i].isMotor = true;
+  if(multiSelectionMode == true){
+    for(var i = 0;i<selectionArray.length;i++){
+      selected = selectionArray[i];
+      for(var j = 0; j<compositeArray.length;j++){
+        if(selected == compositeArray[j].bodies[0]){
+          compositeArray[j].isMotor = true;
+          compositeArray[j].lock = false;
+        }
+      }
+    }
+  }
+  else{
+    for(var i = 0; i<compositeArray.length;i++){
+      if(selected == compositeArray[i].bodies[0]){
+        compositeArray[i].isMotor = true;
+        compositeArray[i].lock = false;
+      }
     }
   }
 }
 function removeMotor(){
-  for(var i = 0; i<compositeArray.length;i++){
-    if(selected == compositeArray[i].bodies[0]){
-      compositeArray[i].isMotor = false;
-      Body.setAngularVelocity(compositeArray[i].bodies[0],0);
+  if(multiSelectionMode == true){
+    for(var i = 0;i<selectionArray.length;i++){
+      selected = selectionArray[i];
+      for(var j = 0; j<compositeArray.length;j++){
+        if(selected == compositeArray[j].bodies[0]){
+          compositeArray[j].isMotor = false;
+          if(compositeArray[j].shape == "rect"){
+            compositeArray[j].lock = true;
+          }
+          Body.setAngularVelocity(compositeArray[j].bodies[0],0);
+        }
+      }
+    }
+  }
+  else{
+    for(var i = 0; i<compositeArray.length;i++){
+      if(selected == compositeArray[i].bodies[0]){
+        compositeArray[i].isMotor = false;
+        if(compositeArray[i].shape == "rect"){
+          compositeArray[i].lock = true;
+        }
+        Body.setAngularVelocity(compositeArray[i].bodies[0],0);
+      }
     }
   }
 }
 function reverseMotor(){
-  for(var i = 0; i<compositeArray.length;i++){
-    if(selected == compositeArray[i].bodies[0]){
-      compositeArray[i].motorDir = compositeArray[i].motorDir*-1;
+  if(multiSelectionMode == true){
+    for(var i = 0;i<selectionArray.length;i++){
+      selected = selectionArray[i];
+      for(var j = 0; j<compositeArray.length;j++){
+        if(selected == compositeArray[j].bodies[0]){
+          compositeArray[j].motorDir = compositeArray[j].motorDir*-1;
+        }
+      }
+    }
+  }
+  else{
+    for(var i = 0; i<compositeArray.length;i++){
+      if(selected == compositeArray[i].bodies[0]){
+        compositeArray[i].motorDir = compositeArray[i].motorDir*-1;
+      }
     }
   }
 }
@@ -407,20 +534,67 @@ function changeTimeInterval(value){
 }
 var rotationAngle = 0;
 function rotateObject(value){
+  //overlay3();
   for(var i = 0; i<compositeArray.length;i++){
     if(selected == compositeArray[i].bodies[0]){
-      Body.setAngle(compositeArray[i].bodies[0],value*(Math.PI/180));
+      compositeArray[i].rotation = value*(Math.PI/180);
+      Body.setAngle(compositeArray[i].bodies[0],compositeArray[i].rotation);
       //rotationAngle = value*(Math.PI/180);
+    }
+  }
+}
+function setObjectRotation(){
+  for(var i = 0; i<compositeArray.length;i++){
+    if(selected == compositeArray[i].bodies[0]){
+      overlay3();
+      compositeArray[i].rotation = document.getElementById("changeAngle").value*(Math.PI/180);
+      Body.setAngle(compositeArray[i].bodies[0],compositeArray[i].rotation);
+    }
+  }
+}
+function resetRotation(){
+  for(var i = 0; i<compositeArray.length;i++){
+    if(selected == compositeArray[i].bodies[0]){
+      compositeArray[i].rotation = 0;
+      Body.setAngle(compositeArray[i].bodies[0],compositeArray[i].rotation);
+      //rotationAngle = value*(Math.PI/180);
+    }
+  }
+}
+function lockRotation(){
+  for(var i = 0; i<compositeArray.length;i++){
+    if(selected == compositeArray[i].bodies[0]){
+      if(compositeArray[i].isMotor == false){
+        compositeArray[i].lock = true;
+      }
+      Body.setAngle(compositeArray[i].bodies[0],compositeArray[i].rotation);
+    }
+  }
+}
+function unlockRotation(){
+  for(var i = 0; i<compositeArray.length;i++){
+    if(selected == compositeArray[i].bodies[0]){
+      if(compositeArray[i].isMotor == false){
+        compositeArray[i].lock = false;
+      }
+      Body.setAngle(compositeArray[i].bodies[0],compositeArray[i].rotation);
     }
   }
 }
 ///////////// Mouse Events ///////////////////////////////////
 
 Events.on(mouseConstraint, 'startdrag', function(event) {
+  for(var i = 0; i<jointComposites.length;i++){
+      console.log(jointComposites[i].constraints[0]);
+    }
   //console.log(event.body);
   mouseConstraint.constraint.stiffness = 0.1;
-  select(event.body);
-  rotationAngle = selected.angle;
+  if(multiSelectionMode == true){
+    multiSelect(event.body);
+  }
+  else{
+    select(event.body);
+  }
   var mousePosition = event.mouse.position;
   if (dragMode == true){
     //console.log('mousedown at ' + mousePosition.x + ' ' + mousePosition.y);
@@ -455,8 +629,10 @@ Events.on(mouseConstraint, 'startdrag', function(event) {
       //console.log('mousedown at ' + mousePosition.x + ' ' + mousePosition.y);
       //console.log(Composite.get(composite1, event.body.id, "body"));
       if (clicked == true){
-          clickedComposite.constraints[0].pointA.x = mousePosition.x;
-          clickedComposite.constraints[0].pointA.y = mousePosition.y;
+        var snapDist = 25;
+        clickedComposite.constraints[0].pointA.x = (Math.round(mousePosition.x/snapDist))*snapDist;
+        clickedComposite.constraints[0].pointA.y = (Math.round(mousePosition.y/snapDist))*snapDist;
+        console.log(clickedComposite.constraints[0].pointA.x);
       }
     }
     else if(constraintMode == true){
@@ -476,7 +652,7 @@ Events.on(mouseConstraint, 'startdrag', function(event) {
       clicked = false;
     }
     else if(constraintMode == true){
-      if(constraintDeleteMode){
+      if(removeConstraint){
         deleteConstraint();
       }
       else{
@@ -521,16 +697,25 @@ Events.on(engine, 'beforeUpdate', function(event) {
     //   }
     //   Body.setAngularVelocity(motors[i], rotationSpeed*rotationDirection);
     // }
-    constraintStiffness();
+    //constraintStiffness();
     for(var i = 0; i<compositeArray.length;i++){
-
+      if(compositeArray[i].lock == true){
+        if(compositeArray[i].shape == "gear"){
+          Body.setAngle(compositeArray[i].bodies[0], compositeArray[i].rotation);
+        }
+        if(compositeArray[i].shape == "rect"){
+          if(compositeArray[i].hasConstraint == false){
+            Body.setAngle(compositeArray[i].bodies[0], compositeArray[i].rotation);
+          }
+        }
+      }
       if(compositeArray[i].isMotor == true){
         Body.setAngularVelocity(compositeArray[i].bodies[0], compositeArray[i].motorSpeed*compositeArray[i].motorDir);
       }
     }
     if (clicked == true){
-      if(clickedComposite.shape == "rect"){
-        Body.setAngle(clickedComposite.bodies[0], rotationAngle);
+      if(clickedComposite.lock == true){
+        Body.setAngle(clickedComposite.bodies[0], clickedComposite.rotation);
       }
     }
     // every 1.5 sec

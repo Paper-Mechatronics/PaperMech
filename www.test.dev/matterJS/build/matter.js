@@ -1203,6 +1203,9 @@ var Body = require('./Body');
             motorDir: 1,
             motorSpeed: 0.04,
             isMotor: false,
+            hasConstraint: false,
+            rotation: 0,
+            lock: false,
             constraints: [], 
             composites: [],
             label: 'Composite'
