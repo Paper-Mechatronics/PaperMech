@@ -1200,6 +1200,7 @@ var Body = require('./Body');
             toothWidthDegree: 3,
             width: 0,
             height: 0,
+            bottom: 0,
             motorDir: 1,
             motorSpeed: 0.04,
             isMotor: false,
@@ -3564,6 +3565,7 @@ var Common = require('../core/Common');
         var difference = (currentLength - constraint.length) / currentLength,
             normal = Vector.div(delta, currentLength),
             force = Vector.mult(delta, difference * 0.5 * constraint.stiffness * timeScale * timeScale);
+            //console.log(difference)
         
         // if difference is very small, we can skip
         if (Math.abs(1 - (currentLength / constraint.length)) < _minDifference * timeScale)
@@ -3633,7 +3635,7 @@ var Common = require('../core/Common');
         var torque;
  
         if (bodyA && !bodyA.isStatic) {
-            torque = Vector.cross(offsetA, normalVelocity) * bodyA.inverseInertia * (1 - constraint.angularStiffness);
+            torque = Vector.cross(offsetA, normalVelocity) * bodyA.inverseInertia * (1 );
 
             // keep track of applied impulses for post solving
             bodyA.constraintImpulse.x -= force.x;
@@ -3647,7 +3649,7 @@ var Common = require('../core/Common');
         }
 
         if (bodyB && !bodyB.isStatic) {
-            torque = Vector.cross(offsetB, normalVelocity) * bodyB.inverseInertia * (1 - constraint.angularStiffness);
+            torque = Vector.cross(offsetB, normalVelocity) * bodyB.inverseInertia * (1 );
 
             // keep track of applied impulses for post solving
             bodyB.constraintImpulse.x += force.x;
