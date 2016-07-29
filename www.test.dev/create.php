@@ -108,6 +108,7 @@ else{
          height:100%;
          text-align:center;
          z-index: 1000;
+         color: #000;
     }
     #overlay div, #overlay2 div, #overlay3 div {
          width:300px;
@@ -171,7 +172,9 @@ else{
     <label>OBJECTS</label>
     <br>
     <button class = "object btn btn-primary" type="button" id="createGear" onclick="addGearComposite()">Add Gear</button>
+    <button class = "object btn btn-primary" type="button" id="createLinGear" onclick="addLinGearComposite()">Add Linear Gear</button>
     <button class = "object btn btn-primary" type="button" id="createMedGear" onclick="mediumGear()">Add Medium Gear</button>
+    <br>
     <button class = "object btn btn-primary" type="button" id="createSmallGear" onclick="smallGear()">Add Small Gear</button>
     
     <button class = "object btn btn-primary" type="button" id="modal" onclick="overlay()">Add Rectangle</button>
@@ -193,6 +196,7 @@ else{
     <button class = "rotation btn btn-primary" type="button" id="resetRotation" onclick="resetRotation()">Reset Rotation</button>
     
     <button class = "rotation btn btn-primary" type="button" id="lockRotation" onclick="lockRotation()">Lock Rotation</button>
+    <br>
     
     <button class = "rotation btn btn-primary" type="button" id="unlockRotation" onclick="unlockRotation()">Unlock Rotation</button>
     <br>
@@ -208,6 +212,9 @@ else{
     <button class = "motor btn btn-primary" type="button" id="removeMotor" onclick="removeMotor()">Remove Motor</button>
     
     <button class = "motor btn btn-primary" type="button" id="reverseMotor" onclick="reverseMotor()">Reverse Motor</button>
+    <br>
+    <button class = "motor btn btn-primary" type="button" id="alternateMotor" onclick="alternateMotor()">Alternate Motor</button>
+    <button class = "motor btn btn-primary" type="button" id="noAlternateMotor" onclick="nonAlternateMotor()">Remove Alternating</button>
     <br>
 
     <!--<button type="button" id="rotate" onclick="overlay3()">Set Angle</button>-->

@@ -1204,6 +1204,7 @@ var Body = require('./Body');
             motorDir: 1,
             motorSpeed: 0.04,
             isMotor: false,
+            alternate: false,
             hasConstraint: false,
             rotation: 0,
             lock: false,
