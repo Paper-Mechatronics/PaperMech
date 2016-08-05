@@ -1,15 +1,3 @@
-<?php
-include('wp-blog-header.php');
-
-global $user_identity;
-if($user_identity){
-	echo $user_identity;
-}
-else{
-	die('Sorry, you must be <a href="'. get_bloginfo('home') . '/wp-login.php?redirect_to=' . $_SERVER['PHP_SELF'] . '">logged in</a> to view this page.');
-}
-//echo do_shortcode( '[contact-form-7 id="1234" title="Contact form 1"]' );
-?>
 <!DOCTYPE html>
 <html>
   <head>
@@ -45,250 +33,126 @@ else{
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
-    <script src="js/decomp.js" type="text/javascript"></script>
-    <script src="matterJS/build/matter.js" type="text/javascript"></script>
-    <script src="matterJS/build/Examples.js" type="text/javascript"></script>
-    <!--<script src="js/phaser.min.js" type="text/javascript"></script>-->
-    <script src="js/matterTest.js" type="text/javascript"></script>
-    <!--<script src="js/p2.js"></script>
-    <script src="js/p2.renderer.js"></script>-->
     <style> 
     body {
         padding: 0; 
         margin: 0;
-        background-color: #4E4E4E;
-        color: #fff;
     } 
-    canvas {
-        position: fixed;
-    	display: inline-block;
-    	float: right;
-        right: 0;
-        vertical-align: top;
-        border-left: 2px solid black;
-        
-
-    } 
-    #content{
-    	position: absolute;
-    	float: left;
-    	width: 25%;
-    	height: 100%;
-    	display: inline-block;
+    .navbar-default{
+    background-color: #985ec5 !important;
+    background-image: none;
+    height: 57px;
     }
-    #openClose{
-        position:absolute;
-        top:70%;
-    }
-    #flapping{
-        position:absolute;
-        top:73%;
-    }
-    .values{
-        display: inline-block;
-    }
-    .p2-container{
-    
-    }
-    #myCanvas{
-    }
-    #selected{
-        float: right;
-        display: inline-block;
+    .navbar-brand{
         position: absolute;
-        margin-top: 0px;
+        margin-top: 0;
+
+    }
+    #logo{
+        margin: 0;
+        position: absolute;
+        margin-top: -10px;
+        height: 45px;
+    }
+    #container {
+        height: auto;
+        width: 60%;
+        margin: 0 auto;
+        margin-top: 100px;
+        text-align: justify;
+        -ms-text-justify: distribute-all-lines;
+        text-justify: distribute-all-lines;
+
+        /* just for demo */
+        min-width: 612px;
     }
 
-    #overlay, #overlay2, #overlay3 {
-         visibility: hidden;
-         position: absolute;
-         left: 0px;
-         top: 0px;
-         width:100%;
-         height:100%;
-         text-align:center;
-         z-index: 1000;
-         color: #000;
+    .box {
+        width: 175px;
+        height: 175px;
+        border-radius: 7px;
+        border: 4px solid black;
+        vertical-align: top;
+        display: inline-block;
+        *display: inline;
+        zoom: 1;
+        margin-bottom: 50px;
+        padding: 0;
+        text-align: center;
     }
-    #overlay div, #overlay2 div, #overlay3 div {
-         width:300px;
-         margin: 100px auto;
-         background-color: #fff;
-         border:1px solid #000;
-         padding:15px;
-         text-align:center;
+    .box img{
+        width: 100%;
+        height: 100%;
+        border-radius: 7px;
     }
-    #codeBlock{
-        padding-top: 5px;
-        padding-bottom: 5px;
-        background-color: #ccc;
-        color: #000;
+    .box div{
+        position: absolute;
+        width: inherit;
+        border-radius: 7px;
     }
-    pre{
-        background-color: #ccc;
+    .stretch {
+        width: 100%;
+        display: inline-block;
+        font-size: 0;
+        line-height: 0;
     }
-    button{
-        border-radius: 3px;
+    #design-title{
+        margin: 0 auto;
+        text-align: center;
     }
-    input[type="range"]{
-        width: 200px !important;
+    #design-title > ul{
+        text-align: center;
+    }
+    .dropdown{
+        display: inline-block;
     }
     </style>
   </head>
   <body>
-    <a href="flapping.php"><button class = "mode btn btn-primary" type="button" >Flapping Module</button></a>
-    <br>
-    <label>Motor Speed: </label>
-    <input type="range" id="changeSpeed" value="40" min="0" max="100" oninput="changeSpeed(this.value)">
-    <br>
-    <!--<label>Number of Teeth: </label>
-    <input type="range" id="changeNumOfTeeth" value="40" min="10" max="55" oninput="changeNumOfTeeth(this.value)">
-    <br>
-    <label>Tooth Height: </label>
-    <input type="range" id="changeToothHeight" value="25" min="0" max="30" oninput="changeToothHeight(this.value)">
-    <br>
-    <label>Tooth Width: </label>
-    <input type="range" id="changeToothWidth" value="300" min="0" max="800" oninput="changeToothWidth(this.value)">
-    <br>
-    <label>Gear Radius: </label>
-    <input type="range" id="changeRadius" value="75" min="20" max="100" oninput="changeRadius(this.value)">
-    <br>-->
-    <label>Time Interval: </label>
-    <input type="range" id="changeTimeInterval" value="3" min="1" max="30" oninput="changeTimeInterval(this.value)">
-    <!--<br>
-    <label>Rotate Object: </label>
-    <input type="range" id="changeRotation" value="0" min="0" max="360" oninput="rotateObject(this.value)">-->
-    <br>
-    <br>
-    <label>MODES</label>
-    <br>
-    <button class = "mode btn btn-primary" type="button" id="selection" onclick="selectingMode()">Selection Mode</button> 
-    
-    <button class = "mode btn btn-primary" type="button" id="multiSelection" onclick="multiSelectingMode()">Multi-Select Mode</button> 
-    
-    <button class = "mode btn btn-primary" type="button" id="drag" onclick="draggingMode()">Drag Mode</button> 
-    <br>
-    <hr>
-    <label>OBJECTS</label>
-    <br>
-    <button class = "object btn btn-primary" type="button" id="createGear" onclick="addGearComposite()">Add Gear</button>
-    <button class = "object btn btn-primary" type="button" id="createLinGear" onclick="addLinGearComposite()">Add Linear Gear</button>
-    <button class = "object btn btn-primary" type="button" id="createMedGear" onclick="mediumGear()">Add Medium Gear</button>
-    <br>
-    <button class = "object btn btn-primary" type="button" id="createSmallGear" onclick="smallGear()">Add Small Gear</button>
-    
-    <button class = "object btn btn-primary" type="button" id="modal" onclick="overlay()">Add Rectangle</button>
-    
-    <button class = "object btn btn-primary" type="button" id="deleteGear" onclick="removeComposite()">Remove Object</button> 
-    <br>
-    <hr>
-    <label>CONSTRAINTS</label>
-    <br>
-    <button class = "constraints btn btn-primary" type="button" id="constrain" onclick="constrainingMode()">Add Constraint</button> 
-
-    <button class = "constraints btn btn-primary" type="button" id="deleteConstraint" onclick="constrainingDeleteMode()">Remove Constraint</button> 
-    <br>
-    <hr>
-    <label>ROTATION</label>
-    <br>
-    <button class = "rotation btn btn-primary" type="button" id="setRotation" onclick="setObjectRotation()">Set Rotation</button>
-    
-    <button class = "rotation btn btn-primary" type="button" id="resetRotation" onclick="resetRotation()">Reset Rotation</button>
-    
-    <button class = "rotation btn btn-primary" type="button" id="lockRotation" onclick="lockRotation()">Lock Rotation</button>
-    <br>
-    
-    <button class = "rotation btn btn-primary" type="button" id="unlockRotation" onclick="unlockRotation()">Unlock Rotation</button>
-    <br>
-    <hr>
-    
-
-    <!--<button type="button" id="motorSet" onclick="motorSet()">Set Motor</button> 
-    <br>-->
-    <label>MOTORS</label>
-    <br>
-    <button class = "motor btn btn-primary" type="button" id="addMotor" onclick="addMotor()">Add Motor</button>
-
-    <button class = "motor btn btn-primary" type="button" id="removeMotor" onclick="removeMotor()">Remove Motor</button>
-    
-    <button class = "motor btn btn-primary" type="button" id="reverseMotor" onclick="reverseMotor()">Reverse Motor</button>
-    <br>
-    <button class = "motor btn btn-primary" type="button" id="alternateMotor" onclick="alternateMotor()">Alternate Motor</button>
-    <button class = "motor btn btn-primary" type="button" id="noAlternateMotor" onclick="nonAlternateMotor()">Remove Alternating</button>
-    <br>
-
-    <!--<button type="button" id="rotate" onclick="overlay3()">Set Angle</button>-->
-    <div id="overlay">
-         <div>
-            <label>Width:</label>
-            <br>
-            <input id= "widthInput" class="w3-input" type="text">
-            <br>
-            <br>
-            <label>Height:</label>
-            <br>
-            <input id = "heightInput" class="w3-input" type="text">
-            <br>
-            <br>
-            <button type="button" id="cancel" onclick="overlay()">Cancel</button> 
-            <button type="button" id="createRect" onclick="createRect()">Create</button>
-         </div>
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="http://www.papermech.net/">
+            <img id = "logo" alt="Brand" src="img/papermech.gif">
+          </a>
+        </div>
+      </div>
+    </nav>
+    <div id = "design-title">
+        <h1>Design Your Own Machine</h1>
+         <select id = "dropdown" name="cars" onchange="changeMods()">
+            <option value="motion">Motion</option>
+            <option value="mechanism">Mechanism</option>
+          </select>
     </div>
-    <div id="overlay2">
-         <div>
-            <!--<label>Offset Object 1</label>
-            <br>
-            <input id= "offset1" class="w3-input" type="text">
-            <br>
-            <br>
-            <label>Offset Object 2</label>
-            <br>
-            <input id = "offset2" class="w3-input" type="text">
-            <br>
-            <br>-->
-            <label>Length</label>
-            <br>
-            <input id = "length" class="w3-input" type="text">
-            <br>
-            <br>
-            <button type="button" id="cancel" onclick="overlay2()">Cancel</button> 
-            <button type="button" id="createRect" onclick="createConstraint()">Create</button>
-         </div>
+    <div id="container">
+        <a href = "#"><div class="box"><div id = "one">Open-Close</div><img src="http://placehold.it/175x175"></div></a>
+        <a href = "#"><div class="box"><div id = "two">Up-Down</div><img src="http://placehold.it/175x175"></div></a>
+        <a href = "flapping.php"><div class="box"><div id = "three">Flapping</div><img src="http://placehold.it/175x175"></div></a>
+        <span class="stretch"></span>
+        <br>
+        <a href = "#"><div class="box"><div id = "four">Rotate</div><img src="http://placehold.it/175x175"></div></a>
+        <a href = "#"><div class="box"><div id = "five">Zigzag</div><img src="http://placehold.it/175x175"></div></a>
+        <a href = "custom.php"><div class="box"><div id = "custom">Custom</div><img src="http://placehold.it/175x175"></div></a>
+        <span class="stretch"></span>
     </div>
-    <div id="overlay3">
-         <div>
-            <h2>Rotate</h2>
-            <br>
-            <br>
-            <label>Angle: </label>
-            <br>
-            <input id = "changeAngle" class="w3-input" type="text">
-            <br>
-            <br>
-            <br>
-            <button type="button" id="cancel" onclick="overlay3()">Cancel</button> 
-            <button type="button" id="createRect" onclick="setObjectRotation()">Rotate</button>
-         </div>
-    </div>
-    <br>
-    <div  id = "codeBlock">
-        <pre>
-        #include <Servo.h> 
-
-        Servo myservo;
-
-        void setup() 
-        { 
-          myservo.attach(9);
-          myservo.write(90);  // set servo to mid-point
-        } 
-
-        void loop() {} 
-        </pre> 
-    <div>
-
-
     <script type="text/javascript">
+        function changeMods(){
+            if(document.getElementById("dropdown").value == "mechanism"){
+                document.getElementById('one').value = "Rack & Pinion";
+                document.getElementById('two').value = "Crank";
+                document.getElementById('three').value = "Cam";
+                document.getElementById('four').value = "Spur Gears";
+                document.getElementById('five').value = "Planetary Gears";
+            }
+            else{
+                document.getElementById('one').value = "Open-Close";
+                document.getElementById('two').value = "Up-Down";
+                document.getElementById('three').value = "Flapping";
+                document.getElementById('four').value = "Rotate";
+                document.getElementById('five').value = "Zigzag";
+            }
+        }
     </script>
   </body>
 </html>

@@ -57,6 +57,7 @@ var timeInterval = 3;
 var selectionArray = [];
 var snapDist = 1;
 var rotationAngle = 0;
+var set = false;
 
 var xValues = [];
 var yValues = [];
@@ -75,6 +76,14 @@ var toothWidth = (toothWidthDegree/conversionFactor);
 var offset = 0;
 var motors = [];
 var jointArray;
+
+var pointXCheck;
+var pointYCheck;
+var circlePoints1 = []
+var pointXCheck2;
+var pointYCheck2;
+var circlePoints2 = []
+var resolution = 100;
 
 /////////////////////// Pop Up Modal ///////////////////////////////////
 function overlay() {
@@ -98,6 +107,8 @@ function drawGear(){
   for (var i = 0; i < steps; i++) {
     xValues[i] = (centerX + radius * Math.cos(2 * Math.PI * i / steps));
     yValues[i] = (centerY + radius * Math.sin(2 * Math.PI * i / steps));
+    console.log("x = " + xValues[i])
+    console.log("y = " + yValues[i])
   }
   // add teeth
   for (var i = 0; i < steps; i++) {
@@ -187,6 +198,10 @@ function addGearComposite(){
   World.add(engine.world,[compositeArray[totalComposites-1]] );
   // set new composite body as selected
   select(compositeArray[totalComposites-1].bodies[0]);
+  selectedGearSnapBounds();
+  if (totalComposites>1){
+    otherGearSnapBounds();
+  }
 }
 function addLinGearComposite(){
   // see addGearComposite() comments
@@ -939,6 +954,82 @@ function unlockRotation(){
     }
   }
 }
+
+function selectedGearSnapBounds(){
+  for(var i = 0; i<compositeArray.length;i++){
+    if(selected == compositeArray[i].bodies[0]){
+      if(compositeArray[i].shape == "gear"){
+        for (var j = 0; j < 20; j++) {
+          pointXCheck = compositeArray[i].constraints[0].pointA.x + (compositeArray[i].radius+(compositeArray[i].toothHeight*1.5)) * Math.cos(2 * Math.PI * j / 20)
+          pointYCheck = compositeArray[i].constraints[0].pointA.y + (compositeArray[i].radius+(compositeArray[i].toothHeight*1.5)) * Math.sin(2 * Math.PI * j / 20)
+          circlePoints1.push({x:pointXCheck, y:pointYCheck})
+          //World.add(engine.world,[Bodies.rectangle(pointXCheck, pointYCheck, 2, 2)]);
+        }
+      }
+    }
+  }
+}
+function otherGearSnapBounds(){
+  for(var i = 0; i<compositeArray.length;i++){
+    if(compositeArray[i].bodies[0] != selected){
+      if(compositeArray[i].shape == "gear"){
+        circlePoints2 = []
+        // for (var j = 0; j < 20; j++) {
+        //   pointXCheck2 = compositeArray[i].constraints[0].pointA.x + (compositeArray[i].radius+(compositeArray[i].toothHeight*1.5)) * Math.cos(2 * Math.PI * j / 20)
+        //   pointYCheck2 = compositeArray[i].constraints[0].pointA.y + (compositeArray[i].radius+(compositeArray[i].toothHeight*1.5)) * Math.sin(2 * Math.PI * j / 20)
+        //   //circlePoints2.push({x:pointXCheck2, y:pointYCheck2})
+        //   //World.add(engine.world,[Bodies.rectangle(pointXCheck2, pointYCheck2, 2, 2)]);
+          // for(var k = 0;k<circlePoints1.length;k++){
+        var a = selected.position.x-compositeArray[i].constraints[0].pointA.x
+        var b = selected.position.y-compositeArray[i].constraints[0].pointA.y
+        var dist = Math.sqrt( (a)*(a) + (b)*(b) );
+        if (dist<(compositeArray[i].radius*3)){
+          var distFromRad = compositeArray[i].radius*3
+          var slope = (selected.position.y-compositeArray[i].constraints[0].pointA.y)/(selected.position.x-compositeArray[i].constraints[0].pointA.x)
+          console.log("Distance to center:" + dist);
+          console.log("Distance from radius: " + distFromRad);
+          console.log(slope);
+          for(var j = 0; j< 230;j++){
+            a = selected.position.x-compositeArray[i].constraints[0].pointA.x
+            b = selected.position.y-compositeArray[i].constraints[0].pointA.y
+            dist = Math.sqrt( (a)*(a) + (b)*(b) );
+            if(selected.position.x<compositeArray[i].constraints[0].pointA.x){
+              Body.setPosition(selected, {x:selected.position.x + 1, y:selected.position.y + (1*slope)})
+              clickedComposite.constraints[0].pointA.x = clickedComposite.constraints[0].pointA.x +1;
+              clickedComposite.constraints[0].pointA.y = clickedComposite.constraints[0].pointA.y + (1*slope);
+            }
+            if(selected.position.x>compositeArray[i].constraints[0].pointA.x){
+              Body.setPosition(selected, {x:selected.position.x - 1, y:selected.position.y + (1*slope)})
+              clickedComposite.constraints[0].pointA.x = clickedComposite.constraints[0].pointA.x -1;
+              clickedComposite.constraints[0].pointA.y = clickedComposite.constraints[0].pointA.y + (1*slope);
+            }
+            
+            //clickedComposite.constraints[0].pointA.y = clickedComposite.constraints[0].pointA.y + (1*slope);
+            //console.log(dist)
+            if(dist<178){
+              clicked = false;
+              clickedComposite = null;
+              set = true;
+              return;
+            }
+          }
+        }
+          // }
+        // }
+      }
+    }
+  }
+}
+function compareGearBounds(){
+  if (selected){
+    for(var i = 0; i<compositeArray.length;i++){
+      if(compositeArray[i].bodies[0] != selected){
+
+      }
+    }
+  }
+}
+
 ///////////// Mouse Events ///////////////////////////////////
 
 // On mouse down startdrag is called
@@ -964,7 +1055,7 @@ Events.on(mouseConstraint, 'startdrag', function(event) {
     Body.setPosition(event.body,mousePosition);
     for(var i=0; i<compositeArray.length;i++){
       // find body within composite
-      if(Composite.get(compositeArray[i], event.body.id, "body")==event.body){
+      if(Composite.get(compositeArray[i], event.body.id, "body")==event.body && set == false){
         clicked = true;
         clickedComposite = compositeArray[i];
         // set constraint position of object to clicked mouse position
@@ -994,10 +1085,11 @@ Events.on(mouseConstraint, 'startdrag', function(event) {
     if (dragMode == true){
       //console.log('mousedown at ' + mousePosition.x + ' ' + mousePosition.y);
       //console.log(Composite.get(composite1, event.body.id, "body"));
-      if (clicked == true){
+      if (clicked == true && set == false){
         // set snap distance by rounding mouse position
         clickedComposite.constraints[0].pointA.x = (Math.round(mousePosition.x/snapDist))*snapDist;
         clickedComposite.constraints[0].pointA.y = (Math.round(mousePosition.y/snapDist))*snapDist;
+        otherGearSnapBounds();
       }
     }
     // if constraint mode is active
@@ -1044,6 +1136,7 @@ Events.on(mouseConstraint, 'startdrag', function(event) {
     }
     // clicked composite is nothing
     clickedComposite = null;
+    set = false;
   })
 
 
@@ -1074,6 +1167,7 @@ Events.on(mouseConstraint, 'startdrag', function(event) {
 
 // called every frame before physics is applied
 Events.on(engine, 'beforeUpdate', function(event) {
+    //console.log(set)
     // increment counter just in case we need to do something that happens ever couple of frames
     counter += 1;
     // functions that need to be called every frame on each body in the world
@@ -1184,3 +1278,17 @@ Events.on(engine, 'afterUpdate', function(event) {
 
 // run the engine
 Engine.run(engine);
+
+
+
+
+
+// for(var k = 0; k<compositeArray.length;k++){
+//             if(compositeArray[k].shape == "gear"){
+//               for (var m = 0; m < compositeArray[k].numOfTeeth; m++) {
+//                 pointCheck2 = centerX + compositeArray[k].radius+(toothHeight*1.5) * Math.cos(2 * Math.PI * j / steps)
+//               if(pointCheck){
+//               }
+//               }
+//             }
+//           }

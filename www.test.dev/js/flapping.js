@@ -998,11 +998,31 @@ Events.on(engine, 'beforeUpdate', function(event) {
         counter = 0;
         scaleFactor = 1;
     }
+    Body.setAngle(compositeArray[0].bodies[0],compositeArray[1].bodies[0].angle*(-1) - Math.PI)
+    if(compositeArray[2].bodies[0].angle>0.51){
+      Body.setAngle(compositeArray[2].bodies[0],0.51)
+    }
+    if(compositeArray[3].bodies[0].angle<-0.51){
+      Body.setAngle(compositeArray[2].bodies[0],-0.51)
+    }
+    //console.log(compositeArray[2].bodies[0].vertices[2])
+    compositeArray[2].bodies[0].vertices[2].x = 746;
+    compositeArray[2].bodies[0].vertices[2].y = 325;
 })
 Events.on(engine, 'afterUpdate', function(event) {
     console.log(compositeArray[0].constraints[0].length)
     Body.setPosition(compositeArray[0].bodies[0],{x:(window.innerWidth)*(0.75*0.5)-(radius+(toothHeight*0.6)), y:600})
     Body.setPosition(compositeArray[1].bodies[0],{x:(window.innerWidth)*(0.75*0.5)+(radius+(toothHeight*0.6)), y:600})
+    Body.setAngle(compositeArray[0].bodies[0],compositeArray[1].bodies[0].angle*(-1) - Math.PI)
+    if(compositeArray[2].bodies[0].angle>0.51){
+      Body.setAngle(compositeArray[2].bodies[0],0.51)
+    }
+    if(compositeArray[3].bodies[0].angle<-0.51){
+      Body.setAngle(compositeArray[2].bodies[0],-0.51)
+    }
+    compositeArray[2].bodies[0].vertices[2].x = 746;
+    compositeArray[2].bodies[0].vertices[2].y = 325;
+    console.log(compositeArray[2].bodies[0].setAngularVelocity)
   })
 ////////////////////// RUN /////////////////////////////
 var width = 350;
@@ -1012,6 +1032,8 @@ addPolyComposite2((window.innerWidth)*(0.75*0.5)+((width/2)+50), 300, width, 75)
 //compositeArray[2].rotation = Math.PI;
 addPolyComposite((window.innerWidth)*(0.75*0.5)-((width/2)+30), 300, width, 75)
 compositeArray[0].rotation = Math.PI;
+compositeArray[2].bodies[0].mass = 10;
+compositeArray[3].bodies[0].mass = 10;
 Body.setAngle(compositeArray[0].bodies[0], compositeArray[0].rotation);
 //Body.setAngle(compositeArray[2].bodies[0], compositeArray[2].rotation);
 createConstraint(compositeArray[0].bodies[0], compositeArray[3].bodies[0],350)
